@@ -34,6 +34,17 @@ connectDB()
   .then(ensureSuperAdmin)
   .catch((err) => console.warn("⚠ Database connection failed, will retry on next request:", err.message));
 
+// Serverless: make sure the DB is connected before any route runs
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error("DB unavailable:", err.message);
+    res.status(503).json({ success: false, message: "Database unavailable" });
+  }
+});
+
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/users", require("./routes/users"));
 app.use("/api/cards", require("./routes/cards"));
@@ -69,3 +80,5 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+module.exports = app;
