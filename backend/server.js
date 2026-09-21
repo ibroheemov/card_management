@@ -14,19 +14,17 @@ const dns = require("dns");
 // Use public DNS servers
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
-app.use(
-  cors({
-    origin: [
-      "http://localhost:3000",
-      "http://localhost:3001",
-      "http://localhost:5173",
-      "https://card-management-git-main-akilhans-projects.vercel.app",
-      "https://card-management-gilt.vercel.app",
-      "https://card-management-c11w.vercel.app",
-    ],
-    credentials: true,
-  })
-);
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "http://localhost:5173",
+  ...(process.env.CORS_ORIGINS || "")
+    .split(",")
+    .map((o) => o.trim().replace(/\/$/, ""))
+    .filter(Boolean),
+];
+
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 
 app.use(express.json());
 
