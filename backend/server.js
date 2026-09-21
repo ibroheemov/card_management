@@ -4,6 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const cron = require("node-cron");
 const connectDB = require("./config/db");
+const ensureSuperAdmin = require("./config/ensureSuperAdmin");
 const autoReactivateCards = require("./jobs/autoReactivateCards");
 
 const app = express();
@@ -32,6 +33,7 @@ app.use(express.json());
 // Connect to database on startup (non-blocking)
 connectDB()
   .then(() => console.log("✓ Database connected successfully"))
+  .then(ensureSuperAdmin)
   .catch((err) => console.warn("⚠ Database connection failed, will retry on next request:", err.message));
 
 app.use("/api/auth", require("./routes/auth"));
